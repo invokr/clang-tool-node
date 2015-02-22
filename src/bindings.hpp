@@ -26,6 +26,8 @@
 #include <v8.h>
 #include <node.h>
 
+#include "clang/clang_tool.hpp"
+
 using namespace v8;
 
 class node_tool : public node::ObjectWrap {
@@ -37,10 +39,7 @@ public:
     static void Init(Handle<Object> target);
 
     /** Returns the current arguments supplied to clang */
-    static Handle<Value> getArgs(Local<String> property, const AccessorInfo& info);
-
-    /** Sets the arguments supplied to clang */
-    static void setArgs(Local<String> property, Local<Value> value, const AccessorInfo& info);
+    static Handle<Value> setArgs(const Arguments& args);
 
     /** Adds or updates the specified file on the index */
     static Handle<Value> indexTouch(const Arguments& args);
@@ -71,12 +70,14 @@ public:
 private:
     /** Constructor */
     node_tool();
-
     /** Destructor */
     ~node_tool();
 
     /** Invoked when a new instance is created in NodeJs */
     static Handle<Value> New(const Arguments& args);
+
+    /** Underlying clang-tool instance we are binding */
+    clang::tool tool;
 };
 
 #endif /* _CLANG_TOOL_BINDINGS_HPP_ */
