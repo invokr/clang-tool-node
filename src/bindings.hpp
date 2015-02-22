@@ -28,57 +28,55 @@
 
 using namespace v8;
 
-namespace clang_autocomplete {
-    class node_tool : : public node::ObjectWrap {
-    public:
-        /** Persistend class obj for v8 */
-        static Persistent<FunctionTemplate> constructor;
+class node_tool : public node::ObjectWrap {
+public:
+    /** Persistend class obj for v8 */
+    static Persistent<FunctionTemplate> constructor;
 
-        /** Node's initialize function */
-        static void Init(Handle<Object> target);
+    /** Node's initialize function */
+    static void Init(Handle<Object> target);
 
-        /** Returns the current arguments supplied to clang */
-        static Handle<Value> getArgs(Local<String> property, const AccessorInfo& info);
+    /** Returns the current arguments supplied to clang */
+    static Handle<Value> getArgs(Local<String> property, const AccessorInfo& info);
 
-        /** Sets the arguments supplied to clang */
-        static void setArgs(Local<String> property, Local<Value> value, const AccessorInfo& info);
+    /** Sets the arguments supplied to clang */
+    static void setArgs(Local<String> property, Local<Value> value, const AccessorInfo& info);
 
-        /** Adds or updates the specified file on the index */
-        static Handle<Value> indexTouch(const Arguments& args);
+    /** Adds or updates the specified file on the index */
+    static Handle<Value> indexTouch(const Arguments& args);
 
-        /** Returns current memory usage */
-        static Handle<Value> indexStatus(const Arguments& args);
+    /** Returns current memory usage */
+    static Handle<Value> indexStatus(const Arguments& args);
 
-        /** Clears all / a single index entry */
-        static Handle<Value> indexClear(const Arguments& args);
+    /** Clears all / a single index entry */
+    static Handle<Value> indexClear(const Arguments& args);
 
-        /** Returns the outline of the given translation unit */
-        static Handle<Value> fileOutline(const Arguments& args);
+    /** Returns the outline of the given translation unit */
+    static Handle<Value> fileOutline(const Arguments& args);
 
-        /** Returns the candidates for the given location */
-        static Handle<Value> fileDiagnose(const Arguments& args);
+    /** Returns the candidates for the given location */
+    static Handle<Value> fileDiagnose(const Arguments& args);
 
-        /** Returns code completion candidates for given location */
-        static Handle<Value> cursorCandidatesAt(const Arguments& args);
+    /** Returns code completion candidates for given location */
+    static Handle<Value> cursorCandidatesAt(const Arguments& args);
 
-        /** Returns type at given location */
-        static Handle<Value> cursorTypeAt(const Arguments& args);
+    /** Returns type at given location */
+    static Handle<Value> cursorTypeAt(const Arguments& args);
 
-        /** Returns where the type under the cursor is declared */
-        static Handle<Value> cursorDeclarationAt(const Arguments& args);
+    /** Returns where the type under the cursor is declared */
+    static Handle<Value> cursorDeclarationAt(const Arguments& args);
 
-        /** Returns where the type under the cursor is defined */
-        static Handle<Value> cursorDefinitionAt(const Arguments& args);
-    private:
-        /** Constructor */
-        node_tool();
+    /** Returns where the type under the cursor is defined */
+    static Handle<Value> cursorDefinitionAt(const Arguments& args);
+private:
+    /** Constructor */
+    node_tool();
 
-        /** Destructor */
-        ~node_tool();
+    /** Destructor */
+    ~node_tool();
 
-        /** Invoked when a new instance is created in NodeJs */
-        static Handle<Value> New(const Arguments& args);
-    };
-}
+    /** Invoked when a new instance is created in NodeJs */
+    static Handle<Value> New(const Arguments& args);
+};
 
 #endif /* _CLANG_TOOL_BINDINGS_HPP_ */
