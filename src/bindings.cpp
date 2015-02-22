@@ -95,21 +95,28 @@ Handle<Value> node_tool::setArgs(const Arguments& args) {
     HandleScope scope;
 
     // make sure the syntax is correct
-    if (args.Length() != 1 || args[0]->IsArray())
+    if (args.Length() != 1 || !args[0]->IsArray())
         return ThrowException(
-            Exception::SyntaxError(String::New("Usage: setArgs(Array)"))
+            Exception::SyntaxError(String::New("Usage: setArgs(Array arguments)"))
         );
 
     // get arguments and relay to node_tool
     Local<Array> arr = Local<Array>::Cast(args[0]);
-    std::vector<const char*> args2;
+    std::vector<std::string> args2;
+    std::vector<const char*> args2_pointers(arr->Length());
 
+    // copy the node array to args2
     for (std::size_t i = 0; i < arr->Length(); ++i) {
         String::Utf8Value str(arr->Get(i));
         args2.push_back( *str );
     }
 
-    instance->tool.arguments_set(&args2[0], args2.size());
+    // copy args2 to args2_pointer
+    struct c_str { const char* operator ()(const std::string& s) { return s.c_str(); } };
+    std::transform(args2.begin(), args2.end(), args2_pointers.begin(), c_str());
+
+    // arguments set copies it so letting it go out of scope is fine
+    instance->tool.arguments_set(&args2_pointers[0], args2_pointers.size());
     return scope.Close(Undefined());
 }
 
@@ -118,6 +125,14 @@ Handle<Value> node_tool::indexTouch(const Arguments& args) {
     node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
     HandleScope scope;
 
+    // make sure the syntax is correct
+    if (args.Length() != 1 || !args[0]->IsString())
+        return ThrowException(
+            Exception::SyntaxError(String::New("Usage: indexTouch(String path)"))
+        );
+
+    String::Utf8Value str(args[0]);
+    instance->tool.index_touch(*str);
     return scope.Close(Undefined());
 }
 
@@ -126,13 +141,37 @@ Handle<Value> node_tool::indexStatus(const Arguments& args) {
     node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
     HandleScope scope;
 
-    return scope.Close(Undefined());
+    Local<Array> ret = Array::New();
+    auto stat = instance->tool.index_status();
+
+    uint32_t i = 0;
+    for (auto &entry : stat) {
+        Local<Array> e = Array::New();
+        e->Set(0, String::New(entry.first.c_str()));
+        e->Set(1, Number::New(entry.second[CXTUResourceUsage_Combined]));
+        ret->Set(i++, e);
+    }
+
+    return scope.Close(ret);
 }
 
 // clear cache
 Handle<Value> node_tool::indexClear(const Arguments& args) {
     node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
     HandleScope scope;
+
+    // make sure the syntax is correct
+    if (args.Length() == 1 && !args[0]->IsString())
+        return ThrowException(
+            Exception::SyntaxError(String::New("Usage: indexClear([String path])"))
+        );
+
+    if (args.Length()) {
+        String::Utf8Value str(args[0]);
+        instance->tool.index_remove(*str);
+    } else {
+        instance->tool.index_clear();
+    }
 
     return scope.Close(Undefined());
 }
@@ -191,4 +230,4 @@ void initAll(Handle<Object> exports) {
 }
 
 /// export node module
-NODE_MODULE(node_tool, initAll);
+NODE_MODULE(clang_tool, initAll);
