@@ -1,0 +1,21 @@
+{
+  "name": "clang-tool",
+  "version": "0.1.0",
+  "description": "Native NodeJS module that provides bindings to libclang for C/C++ IDE support",
+  "main": "build/Release/clang_tool.node",
+  "scripts": {
+    "test": "node-gyp configure build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/invokr/clang-tool-node.git"
+  },
+  "author": "Robin Dietrich",
+  "license": "Apache 2.0",
+  "bugs": {
+    "url": "https://github.com/invokr/clang-tool-node/issues"
+  },
+  "homepage": "https://github.com/invokr/clang-tool",
+  "dependencies": {},
+  "os" : [ "!win32" ]
+}
