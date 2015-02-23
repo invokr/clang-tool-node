@@ -86,7 +86,65 @@ void node_tool::Init(Handle<Object> target) {
     NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "cursorDeclarationAt", cursorDeclarationAt);
     NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "cursorDefinitionAt",  cursorDefinitionAt);
 
-    target->Set(String::NewSymbol("object"), node_tool::constructor->GetFunction());
+    // Add constructor to our addon
+    target->Set(String::NewSymbol("object"), node_tool::constructor->GetFunction(), ReadOnly);
+
+    // Add all completion types to the addon
+    target->Set(String::NewSymbol("namespace_t"),
+        Number::New(static_cast<uint32_t>(clang::completion_type::namespace_t)),
+        ReadOnly);
+
+    target->Set(String::NewSymbol("class_t"),
+        Number::New(static_cast<uint32_t>(clang::completion_type::class_t)),
+        ReadOnly);
+
+    target->Set(String::NewSymbol("attribute_t"),
+        Number::New(static_cast<uint32_t>(clang::completion_type::attribute_t)),
+        ReadOnly);
+
+    target->Set(String::NewSymbol("method_t"),
+        Number::New(static_cast<uint32_t>(clang::completion_type::method_t)),
+        ReadOnly);
+
+    target->Set(String::NewSymbol("parameter_t"),
+        Number::New(static_cast<uint32_t>(clang::completion_type::parameter_t)),
+        ReadOnly);
+
+    target->Set(String::NewSymbol("struct_t"),
+        Number::New(static_cast<uint32_t>(clang::completion_type::struct_t)),
+        ReadOnly);
+
+    target->Set(String::NewSymbol("function_t"),
+        Number::New(static_cast<uint32_t>(clang::completion_type::function_t)),
+        ReadOnly);
+
+    target->Set(String::NewSymbol("enum_t"),
+        Number::New(static_cast<uint32_t>(clang::completion_type::enum_t)),
+        ReadOnly);
+
+    target->Set(String::NewSymbol("enum_static_t"),
+        Number::New(static_cast<uint32_t>(clang::completion_type::enum_static_t)),
+        ReadOnly);
+
+    target->Set(String::NewSymbol("union_t"),
+        Number::New(static_cast<uint32_t>(clang::completion_type::union_t)),
+        ReadOnly);
+
+    target->Set(String::NewSymbol("typedef_t"),
+        Number::New(static_cast<uint32_t>(clang::completion_type::typedef_t)),
+        ReadOnly);
+
+    target->Set(String::NewSymbol("variable_t"),
+        Number::New(static_cast<uint32_t>(clang::completion_type::variable_t)),
+        ReadOnly);
+
+    target->Set(String::NewSymbol("macro_t"),
+        Number::New(static_cast<uint32_t>(clang::completion_type::macro_t)),
+        ReadOnly);
+
+    target->Set(String::NewSymbol("unkown_t"),
+        Number::New(static_cast<uint32_t>(clang::completion_type::unkown_t)),
+        ReadOnly);
 }
 
 /// set arguments
@@ -184,7 +242,7 @@ Handle<Value> node_tool::fileOutline(const Arguments& args) {
     // make sure the syntax is correct
     if (args.Length() != 1 || !args[0]->IsString())
         return ThrowException(
-            Exception::SyntaxError(String::New("Usage: fileDiagnose(String path)"))
+            Exception::SyntaxError(String::New("Usage: fileOutline(String path)"))
         );
 
     String::Utf8Value str(args[0]);
@@ -263,31 +321,7 @@ Handle<Value> node_tool::fileDiagnose(const Arguments& args) {
     node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
     HandleScope scope;
 
-    // make sure the syntax is correct
-    if (args.Length() != 1 || !args[0]->IsString())
-        return ThrowException(
-            Exception::SyntaxError(String::New("Usage: fileDiagnose(String path)"))
-        );
-
-    String::Utf8Value str(args[0]);
-    auto diag = instance->tool.tu_diagnose(*str);
-
-    // Convert obj to ret
-    Local<Array> ret = Array::New();
-
-    uint32_t i = 0;
-    for (auto &diagnose : diag) {
-        Local<Object> e = Object::New();
-        e->Set(String::New("row"), Number::New(diagnose.loc.row));
-        e->Set(String::New("col"), Number::New(diagnose.loc.col));
-        e->Set(String::New("file"), String::New(diagnose.loc.file.c_str()));
-        e->Set(String::New("severity"), Number::New(diagnose.severity));
-        e->Set(String::New("text"), String::New(diagnose.text.c_str()));
-        e->Set(String::New("summary"), String::New(diagnose.summary.c_str()));
-        ret->Set(i++, e);
-    }
-
-    return scope.Close(ret);
+    return scope.Close(Undefined());
 }
 
 /// code completion
@@ -303,7 +337,19 @@ Handle<Value> node_tool::cursorTypeAt(const Arguments& args) {
     node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
     HandleScope scope;
 
-    return scope.Close(Undefined());
+    // make sure the syntax is correct
+    if (args.Length() != 3 || !args[0]->IsString() || !args[1]->IsNumber() || !args[2]->IsNumber())
+        return ThrowException(
+            Exception::SyntaxError(String::New("Usage: cursorTypeAt(String path, Number row, Number column)"))
+        );
+
+    String::Utf8Value str(args[0]);
+    auto row = args[1]->ToNumber();
+    auto col = args[2]->ToNumber();
+
+    return scope.Close(
+        String::New(instance->tool.cursor_type(*str, row->Value(), col->Value()).c_str())
+    );
 }
 
 /// get decleration for pos
