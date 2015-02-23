@@ -321,7 +321,31 @@ Handle<Value> node_tool::fileDiagnose(const Arguments& args) {
     node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
     HandleScope scope;
 
-    return scope.Close(Undefined());
+    // make sure the syntax is correct
+    if (args.Length() != 1 || !args[0]->IsString())
+        return ThrowException(
+            Exception::SyntaxError(String::New("Usage: fileDiagnose(String path)"))
+        );
+
+    String::Utf8Value str(args[0]);
+    auto diag = instance->tool.tu_diagnose(*str);
+
+    // Convert obj to ret
+    Local<Array> ret = Array::New();
+
+    uint32_t i = 0;
+    for (auto &diagnose : diag) {
+        Local<Object> e = Object::New();
+        e->Set(String::New("row"), Number::New(diagnose.loc.row));
+        e->Set(String::New("col"), Number::New(diagnose.loc.col));
+        e->Set(String::New("file"), String::New(diagnose.loc.file.c_str()));
+        e->Set(String::New("severity"), Number::New(diagnose.severity));
+        e->Set(String::New("text"), String::New(diagnose.text.c_str()));
+        e->Set(String::New("summary"), String::New(diagnose.summary.c_str()));
+        ret->Set(i++, e);
+    }
+
+    return scope.Close(ret);
 }
 
 /// code completion
