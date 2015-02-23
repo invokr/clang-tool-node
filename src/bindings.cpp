@@ -17,7 +17,7 @@
 *   distributed under the License is distributed on an "AS IS" BASIS,
 *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 *   See the License for the specific language governing permissions and
-*   limitations under the License. *
+*   limitations under the License.
 */
 
 #include <vector>
@@ -391,7 +391,7 @@ Handle<Value> node_tool::cursorTypeAt(const Arguments& args) {
 Handle<Value> node_tool::cursorDeclarationAt(const Arguments& args) {
     node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
     HandleScope scope;
-    
+
     // make sure the syntax is correct
     if (args.Length() != 3 || !args[0]->IsString() || !args[1]->IsNumber() || !args[2]->IsNumber())
         return ThrowException(
@@ -401,9 +401,9 @@ Handle<Value> node_tool::cursorDeclarationAt(const Arguments& args) {
     String::Utf8Value str(args[0]);
     auto row = args[1]->ToNumber();
     auto col = args[2]->ToNumber();
-    
+
     auto loc = instance->tool.cursor_declaration(*str, row->Value(), col->Value());
-    
+
     Local<Object> ret = Object::New();
     ret->Set(String::New("file"), String::New(loc.file.c_str()));
     ret->Set(String::New("row"), Number::New(loc.row));
@@ -416,19 +416,19 @@ Handle<Value> node_tool::cursorDeclarationAt(const Arguments& args) {
 Handle<Value> node_tool::cursorDefinitionAt(const Arguments& args) {
     node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
     HandleScope scope;
-    
+
     // make sure the syntax is correct
     if (args.Length() != 3 || !args[0]->IsString() || !args[1]->IsNumber() || !args[2]->IsNumber())
         return ThrowException(
             Exception::SyntaxError(String::New("Usage: cursorTypeAt(String path, Number row, Number column)"))
         );
 
-   String::Utf8Value str(args[0]);
+    String::Utf8Value str(args[0]);
     auto row = args[1]->ToNumber();
     auto col = args[2]->ToNumber();
-    
+
     auto loc = instance->tool.cursor_definition(*str, row->Value(), col->Value());
-    
+
     Local<Object> ret = Object::New();
     ret->Set(String::New("file"), String::New(loc.file.c_str()));
     ret->Set(String::New("row"), Number::New(loc.row));
