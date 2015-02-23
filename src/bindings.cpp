@@ -353,7 +353,37 @@ Handle<Value> node_tool::cursorCandidatesAt(const Arguments& args) {
     node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
     HandleScope scope;
 
-    return scope.Close(Undefined());
+    // make sure the syntax is correct
+    if (args.Length() != 3 || !args[0]->IsString() || !args[1]->IsNumber() || !args[2]->IsNumber())
+        return ThrowException(
+            Exception::SyntaxError(String::New("Usage: cursorCandidatesAt(String path, Number row, Number column)"))
+        );
+
+    String::Utf8Value str(args[0]);
+    auto row = args[1]->ToNumber();
+    auto col = args[2]->ToNumber();
+
+    // get completion results
+    Local<Array> ret = Array::New();
+    auto comp = instance->tool.cursor_complete(*str, row->Value(), col->Value());
+
+    uint32_t j = 0;
+    for (auto &candidate : comp) {
+        Local<Object> entry = Object::New();
+        Local<Array> args = Array::New();
+        entry->Set(String::New("name"), String::New(candidate.name.c_str()));
+        entry->Set(String::New("return_type"), String::New(candidate.return_type.c_str()));
+        entry->Set(String::New("type"), Number::New(static_cast<uint32_t>(candidate.type)));
+
+        for (uint32_t i = 0; i < candidate.args.size(); ++i) {
+            args->Set(i, String::New(candidate.args[i].c_str()));
+        }
+
+        entry->Set(String::New("args"), args);
+        ret->Set(j++, entry);
+    }
+
+    return scope.Close(ret);
 }
 
 /// get type at
@@ -380,16 +410,50 @@ Handle<Value> node_tool::cursorTypeAt(const Arguments& args) {
 Handle<Value> node_tool::cursorDeclarationAt(const Arguments& args) {
     node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
     HandleScope scope;
+    
+    // make sure the syntax is correct
+    if (args.Length() != 3 || !args[0]->IsString() || !args[1]->IsNumber() || !args[2]->IsNumber())
+        return ThrowException(
+            Exception::SyntaxError(String::New("Usage: cursorTypeAt(String path, Number row, Number column)"))
+        );
 
-    return scope.Close(Undefined());
+    String::Utf8Value str(args[0]);
+    auto row = args[1]->ToNumber();
+    auto col = args[2]->ToNumber();
+    
+    auto loc = instance->tool.cursor_declaration(*str, row->Value(), col->Value());
+    
+    Local<Object> ret = Object::New();
+    ret->Set(String::New("file"), String::New(loc.file.c_str()));
+    ret->Set(String::New("row"), Number::New(loc.row));
+    ret->Set(String::New("col"), Number::New(loc.col));
+
+    return scope.Close(ret);
 }
 
 /// get definition for pos
 Handle<Value> node_tool::cursorDefinitionAt(const Arguments& args) {
     node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
     HandleScope scope;
+    
+    // make sure the syntax is correct
+    if (args.Length() != 3 || !args[0]->IsString() || !args[1]->IsNumber() || !args[2]->IsNumber())
+        return ThrowException(
+            Exception::SyntaxError(String::New("Usage: cursorTypeAt(String path, Number row, Number column)"))
+        );
 
-    return scope.Close(Undefined());
+   String::Utf8Value str(args[0]);
+    auto row = args[1]->ToNumber();
+    auto col = args[2]->ToNumber();
+    
+    auto loc = instance->tool.cursor_definition(*str, row->Value(), col->Value());
+    
+    Local<Object> ret = Object::New();
+    ret->Set(String::New("file"), String::New(loc.file.c_str()));
+    ret->Set(String::New("row"), Number::New(loc.row));
+    ret->Set(String::New("col"), Number::New(loc.col));
+
+    return scope.Close(ret);
 }
 
 /// module initialization
