@@ -25,25 +25,6 @@
 #include "clang/clang_tool.hpp"
 #include "bindings.hpp"
 
-/// local utility functions
-namespace {
-    /*
-    template <typename T>
-    std::vector<T> toVector(Local<Value> v) {
-        if (!v->IsArray())
-            return {};
-
-        Local<Array> arr = Local<Array>::Cast(v);
-        std::vector<T> ret(arr->Length());
-
-        for (uint32_t i = 0; i < arr->Length(); ++i) {
-            ret[i] = arr->Get(i);
-        }
-
-        return ret;
-    }*/
-}
-
 /// persistance between calls
 Persistent<FunctionTemplate> node_tool::constructor;
 
