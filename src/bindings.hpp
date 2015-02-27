@@ -43,6 +43,9 @@ public:
 
     /** Adds or updates the specified file on the index */
     static Handle<Value> indexTouch(const Arguments& args);
+    
+    /** Adds temporary content for specified file on the index, will be purged when using indexTouch */
+    static Handle<Value> indexTouchUnsaved(const Arguments& args);
 
     /** Returns current memory usage */
     static Handle<Value> indexStatus(const Arguments& args);

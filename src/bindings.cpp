@@ -58,6 +58,7 @@ void node_tool::Init(Handle<Object> target) {
     // Make our methods available to Node
     NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "setArgs",             setArgs);
     NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "indexTouch",          indexTouch);
+    NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "indexTouchUnsaved",   indexTouchUnsaved);
     NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "indexStatus",         indexStatus);
     NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "indexClear",          indexClear);
     NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "fileOutline",         fileOutline);
@@ -172,6 +173,24 @@ Handle<Value> node_tool::indexTouch(const Arguments& args) {
 
     String::Utf8Value str(args[0]);
     instance->tool.index_touch(*str);
+    return scope.Close(Undefined());
+}
+
+/// add temp contents
+Handle<Value> node_tool::indexTouchUnsaved(const Arguments& args) {
+    node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
+    HandleScope scope;
+
+    // make sure the syntax is correct
+    if (args.Length() != 2 || !args[0]->IsString() || !args[1]->IsString())
+        return ThrowException(
+            Exception::SyntaxError(String::New("Usage: indexTouchTemp(String path, String content)"))
+        );
+
+    String::Utf8Value pStr(args[0]);
+    String::Utf8Value vStr(args[1]);
+
+    instance->tool.index_touch_unsaved(*pStr, *vStr, vStr.length());
     return scope.Close(Undefined());
 }
 
