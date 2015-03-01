@@ -291,6 +291,7 @@ Handle<Value> node_tool::fileOutline(const Arguments& args) {
         }
 
         j = 0;
+        k = 0;
         for (auto &func: class_.functions) {
             Local<Object> fcn = Object::New();
             Local<Array> params = Array::New();
@@ -301,7 +302,7 @@ Handle<Value> node_tool::fileOutline(const Arguments& args) {
 
             fcn->Set(String::New("name"), String::New(func.name.c_str()));
             fcn->Set(String::New("params"), params);
-            functions->Set(i++, fcn);
+            functions->Set(k++, fcn);
         }
 
         cl->Set(String::New("name"), String::New(class_.name.c_str()));
