@@ -1,6 +1,6 @@
 {
   "name": "clang_tool",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Native NodeJS module that provides bindings to libclang for C/C++ IDE support",
   "main": "build/Release/clang_tool.node",
   "scripts": {
