@@ -254,7 +254,6 @@ Handle<Value> node_tool::fileOutline(const Arguments& args) {
     i = 0;
     Local<Array> ret_includes = Array::New();
     for (auto &include: outline.includes) {
-        std::cout << include << std::endl;
         ret_includes->Set(i++, String::New(include.c_str()));
     }
 
@@ -266,10 +265,10 @@ Handle<Value> node_tool::fileOutline(const Arguments& args) {
         Local<Object> fcn = Object::New();
         Local<Array> params = Array::New();
 
+        j = 0;
         for (auto &param: function.params) {
             params->Set(j++, String::New(param.c_str()));
         }
-
 
         fcn->Set(String::New("name"), String::New(function.name.c_str()));
         fcn->Set(String::New("params"), params);
@@ -286,16 +285,17 @@ Handle<Value> node_tool::fileOutline(const Arguments& args) {
         Local<Array> functions = Array::New();
         Local<Array> attributes = Array::New();
 
+        j = 0;
         for (auto &attr : class_.attributes) {
             attributes->Set(j++, String::New(attr.c_str()));
         }
 
-        j = 0;
         k = 0;
         for (auto &func: class_.functions) {
             Local<Object> fcn = Object::New();
             Local<Array> params = Array::New();
 
+            j = 0;
             for (auto &param: func.params) {
                 params->Set(j++, String::New(param.c_str()));
             }
