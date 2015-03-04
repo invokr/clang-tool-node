@@ -417,6 +417,8 @@ Handle<Value> node_tool::cursorCandidatesAt(const Arguments& args) {
         entry->Set(String::New("name"), String::New(candidate.name.c_str()));
         entry->Set(String::New("return_type"), String::New(candidate.return_type.c_str()));
         entry->Set(String::New("type"), Number::New(static_cast<uint32_t>(candidate.type)));
+        entry->Set(String::New("brief"), String::New(candidate.brief.c_str()));
+        entry->Set(String::New("priority"), Number::New(candidate.priority));
 
         for (uint32_t i = 0; i < candidate.args.size(); ++i) {
             args->Set(i, String::New(candidate.args[i].c_str()));
