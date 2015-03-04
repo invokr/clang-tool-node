@@ -62,6 +62,7 @@ void node_tool::Init(Handle<Object> target) {
     NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "indexStatus",         indexStatus);
     NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "indexClear",          indexClear);
     NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "fileOutline",         fileOutline);
+    NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "fileAst",             fileAst);
     NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "fileDiagnose",        fileDiagnose);
     NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "cursorCandidatesAt",  cursorCandidatesAt);
     NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "cursorTypeAt",        cursorTypeAt);
@@ -314,6 +315,47 @@ Handle<Value> node_tool::fileOutline(const Arguments& args) {
     ret->Set(String::New("includes"), ret_includes);
     ret->Set(String::New("functions"), ret_functions);
     ret->Set(String::New("classes"), ret_classes);
+    return scope.Close(ret);
+}
+
+/// returns file ast
+Handle<Value> node_tool::fileAst(const Arguments &args) {
+    node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
+    HandleScope scope;
+
+     // make sure the syntax is correct
+    if (args.Length() != 1 || !args[0]->IsString())
+        return ThrowException(
+            Exception::SyntaxError(String::New("Usage: fileDiagnose(String path)"))
+        );
+
+    String::Utf8Value str(args[0]);
+    auto ast = instance->tool.tu_ast(*str);
+
+    std::function<void(clang::ast_element*, Local<Object>)> astVisitor;
+    astVisitor = [&](clang::ast_element *e, Local<Object> o) {
+        if (e != e->top) {
+            o->Set(String::New("name"), String::New(e->name.c_str()));
+            o->Set(String::New("type"), String::New(e->type.c_str()));
+            o->Set(String::New("doc"), String::New(e->doc.c_str()));
+            o->Set(String::New("cursor"), Number::New(static_cast<uint32_t>(e->cursor)));
+            o->Set(String::New("access"), Number::New(static_cast<uint32_t>(e->access)));
+        }
+
+        Local<Array> children = Array::New();
+        uint32_t children_idx = 0;
+
+        for (auto &eC : e->children) {
+            Local<Object> c = Object::New();
+            astVisitor(&eC, c);
+            children->Set(children_idx++, c);
+        }
+
+        o->Set(String::New("children"), children);
+    };
+
+    Local<Object> ret = Object::New();
+    astVisitor(&ast, ret);
     return scope.Close(ret);
 }
 

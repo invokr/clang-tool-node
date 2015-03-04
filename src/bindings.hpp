@@ -56,6 +56,9 @@ public:
     /** Returns the outline of the given translation unit */
     static Handle<Value> fileOutline(const Arguments& args);
 
+    /** Returns the ast of the given translation unit */
+    static Handle<Value> fileAst(const Arguments& args);
+
     /** Returns the candidates for the given location */
     static Handle<Value> fileDiagnose(const Arguments& args);
 
