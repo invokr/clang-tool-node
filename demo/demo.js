@@ -13,5 +13,5 @@ obj.indexTouch(file);
 
 /// You can now call any of the internal functions
 console.log(
-    obj.indexDiagnose(file)
+    obj.fileAst(file)
 );
