@@ -246,7 +246,7 @@ Handle<Value> node_tool::fileAst(const Arguments &args) {
      // make sure the syntax is correct
     if (args.Length() != 1 || !args[0]->IsString())
         return ThrowException(
-            Exception::SyntaxError(String::New("Usage: fileDiagnose(String path)"))
+            Exception::SyntaxError(String::New("Usage: fileAst(String path)"))
         );
 
     String::Utf8Value str(args[0]);
