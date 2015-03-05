@@ -53,9 +53,6 @@ public:
     /** Clears all / a single index entry */
     static Handle<Value> indexClear(const Arguments& args);
 
-    /** Returns the outline of the given translation unit */
-    static Handle<Value> fileOutline(const Arguments& args);
-
     /** Returns the ast of the given translation unit */
     static Handle<Value> fileAst(const Arguments& args);
 

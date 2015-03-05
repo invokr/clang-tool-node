@@ -61,7 +61,6 @@ void node_tool::Init(Handle<Object> target) {
     NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "indexTouchUnsaved",   indexTouchUnsaved);
     NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "indexStatus",         indexStatus);
     NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "indexClear",          indexClear);
-    NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "fileOutline",         fileOutline);
     NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "fileAst",             fileAst);
     NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "fileDiagnose",        fileDiagnose);
     NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "cursorCandidatesAt",  cursorCandidatesAt);
@@ -123,6 +122,10 @@ void node_tool::Init(Handle<Object> target) {
 
     target->Set(String::NewSymbol("macro_t"),
         Number::New(static_cast<uint32_t>(clang::completion_type::macro_t)),
+        ReadOnly);
+
+    target->Set(String::NewSymbol("include_t"),
+        Number::New(static_cast<uint32_t>(clang::completion_type::include_t)),
         ReadOnly);
 
     target->Set(String::NewSymbol("unkown_t"),
@@ -235,89 +238,6 @@ Handle<Value> node_tool::indexClear(const Arguments& args) {
     return scope.Close(Undefined());
 }
 
-/// get outline
-Handle<Value> node_tool::fileOutline(const Arguments& args) {
-    node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
-    HandleScope scope;
-
-    // make sure the syntax is correct
-    if (args.Length() != 1 || !args[0]->IsString())
-        return ThrowException(
-            Exception::SyntaxError(String::New("Usage: fileOutline(String path)"))
-        );
-
-    String::Utf8Value str(args[0]);
-    auto outline = instance->tool.tu_outline(*str);
-    Local<Object> ret = Object::New();
-    uint32_t i, j, k = 0;
-
-    // Includes
-    i = 0;
-    Local<Array> ret_includes = Array::New();
-    for (auto &include: outline.includes) {
-        ret_includes->Set(i++, String::New(include.c_str()));
-    }
-
-    // Functions
-    Local<Array> ret_functions = Array::New();
-    i = 0;
-    j = 0;
-    for (auto &function: outline.functions) {
-        Local<Object> fcn = Object::New();
-        Local<Array> params = Array::New();
-
-        j = 0;
-        for (auto &param: function.params) {
-            params->Set(j++, String::New(param.c_str()));
-        }
-
-        fcn->Set(String::New("name"), String::New(function.name.c_str()));
-        fcn->Set(String::New("params"), params);
-        ret_functions->Set(i++, fcn);
-    }
-
-    // Classes
-    Local<Array> ret_classes = Array::New();
-    i = 0;
-    j = 0;
-    k = 0;
-    for (auto &class_: outline.classes) {
-        Local<Object> cl = Object::New();
-        Local<Array> functions = Array::New();
-        Local<Array> attributes = Array::New();
-
-        j = 0;
-        for (auto &attr : class_.attributes) {
-            attributes->Set(j++, String::New(attr.c_str()));
-        }
-
-        k = 0;
-        for (auto &func: class_.functions) {
-            Local<Object> fcn = Object::New();
-            Local<Array> params = Array::New();
-
-            j = 0;
-            for (auto &param: func.params) {
-                params->Set(j++, String::New(param.c_str()));
-            }
-
-            fcn->Set(String::New("name"), String::New(func.name.c_str()));
-            fcn->Set(String::New("params"), params);
-            functions->Set(k++, fcn);
-        }
-
-        cl->Set(String::New("name"), String::New(class_.name.c_str()));
-        cl->Set(String::New("attributes"), attributes);
-        cl->Set(String::New("functions"), functions);
-        ret_classes->Set(i++, cl);
-    }
-
-    ret->Set(String::New("includes"), ret_includes);
-    ret->Set(String::New("functions"), ret_functions);
-    ret->Set(String::New("classes"), ret_classes);
-    return scope.Close(ret);
-}
-
 /// returns file ast
 Handle<Value> node_tool::fileAst(const Arguments &args) {
     node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
@@ -334,12 +254,15 @@ Handle<Value> node_tool::fileAst(const Arguments &args) {
 
     std::function<void(clang::ast_element*, Local<Object>)> astVisitor;
     astVisitor = [&](clang::ast_element *e, Local<Object> o) {
-        if (e != e->top) {
+        if (e->cursor != clang::completion_type::unkown_t) {
             o->Set(String::New("name"), String::New(e->name.c_str()));
             o->Set(String::New("type"), String::New(e->type.c_str()));
             o->Set(String::New("doc"), String::New(e->doc.c_str()));
             o->Set(String::New("cursor"), Number::New(static_cast<uint32_t>(e->cursor)));
             o->Set(String::New("access"), Number::New(static_cast<uint32_t>(e->access)));
+            o->Set(String::New("loc_file"), String::New(e->loc.file.c_str()));
+            o->Set(String::New("loc_col"), Number::New(static_cast<uint32_t>(e->loc.col)));
+            o->Set(String::New("loc_row"), Number::New(static_cast<uint32_t>(e->loc.row)));
         }
 
         Local<Array> children = Array::New();
