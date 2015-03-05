@@ -8,11 +8,11 @@ Usage disclaimer: This library is in alpha stage.
 Installing
 ----------
 
-The library is available via npm under the name `clang-tool`.
+The library is available via npm under the name `clang_tool`.
 
 Installation is as easy as:
 
-    npm install clang-tool
+    npm install clang_tool
 
 Because each and every distribution feels the need to put the headers for
 libclang-c in a different place, you might need to add the correct include path
