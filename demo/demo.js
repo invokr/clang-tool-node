@@ -8,7 +8,7 @@ obj.setArgs(["-I/usr/include", "-I/usr/local/include"]);
 // Add files to the index, an absolute path is required
 // If the path is relative, reparses will break certain functions
 var path = require('path');
-var file = path.resolve('./demo.js');
+var file = path.resolve('./demo.cpp');
 obj.indexTouch(file);
 
 /// You can now call any of the internal functions
