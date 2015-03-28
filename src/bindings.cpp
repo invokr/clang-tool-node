@@ -20,6 +20,7 @@
 *   limitations under the License.
 */
 
+#include <algorithm>
 #include <vector>
 
 #include "clang/clang_tool.hpp"
