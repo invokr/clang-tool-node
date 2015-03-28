@@ -29,7 +29,8 @@
         "-I/usr/include",
         "-I/usr/include/llvm",
         "-I/usr/local/include",
-        "-I/usr/local/include/llvm"
+        "-I/usr/local/include/llvm",
+        "-I/usr/lib/llvm-3.5/include"
       ],
 
       "libraries": [
