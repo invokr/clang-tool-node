@@ -23,8 +23,7 @@
 #ifndef _CLANG_TOOL_BINDINGS_HPP_
 #define _CLANG_TOOL_BINDINGS_HPP_
 
-#include <v8.h>
-#include <node.h>
+#include <nan.h>
 
 #include "clang/clang_tool.hpp"
 
@@ -39,37 +38,37 @@ public:
     static void Init(Handle<Object> target);
 
     /** Returns the current arguments supplied to clang */
-    static Handle<Value> setArgs(const Arguments& args);
+    static NAN_METHOD(setArgs);
 
     /** Adds or updates the specified file on the index */
-    static Handle<Value> indexTouch(const Arguments& args);
-    
+    static NAN_METHOD(indexTouch);
+
     /** Adds temporary content for specified file on the index, will be purged when using indexTouch */
-    static Handle<Value> indexTouchUnsaved(const Arguments& args);
+    static NAN_METHOD(indexTouchUnsaved);
 
     /** Returns current memory usage */
-    static Handle<Value> indexStatus(const Arguments& args);
+    static NAN_METHOD(indexStatus);
 
     /** Clears all / a single index entry */
-    static Handle<Value> indexClear(const Arguments& args);
+    static NAN_METHOD(indexClear);
 
     /** Returns the ast of the given translation unit */
-    static Handle<Value> fileAst(const Arguments& args);
+    static NAN_METHOD(fileAst);
 
     /** Returns the candidates for the given location */
-    static Handle<Value> fileDiagnose(const Arguments& args);
+    static NAN_METHOD(fileDiagnose);
 
     /** Returns code completion candidates for given location */
-    static Handle<Value> cursorCandidatesAt(const Arguments& args);
+    static NAN_METHOD(cursorCandidatesAt);
 
     /** Returns type at given location */
-    static Handle<Value> cursorTypeAt(const Arguments& args);
+    static NAN_METHOD(cursorTypeAt);
 
     /** Returns where the type under the cursor is declared */
-    static Handle<Value> cursorDeclarationAt(const Arguments& args);
+    static NAN_METHOD(cursorDeclarationAt);
 
     /** Returns where the type under the cursor is defined */
-    static Handle<Value> cursorDefinitionAt(const Arguments& args);
+    static NAN_METHOD(cursorDefinitionAt);
 private:
     /** Constructor */
     node_tool();
@@ -77,7 +76,7 @@ private:
     ~node_tool();
 
     /** Invoked when a new instance is created in NodeJs */
-    static Handle<Value> New(const Arguments& args);
+    static NAN_METHOD(New);
 
     /** Underlying clang-tool instance we are binding */
     clang::tool tool;

@@ -36,114 +36,95 @@ node_tool::node_tool() : ObjectWrap() {}
 node_tool::~node_tool() {}
 
 /// new
-Handle<Value> node_tool::New(const Arguments &args) {
-    HandleScope scope;
+NAN_METHOD(node_tool::New) {
+    NanScope();
 
     node_tool *ntool = new node_tool();
     ntool->Wrap(args.This());
 
-    return args.This();
+    NanReturnValue(args.This());
 }
 
 /// initializes the njs obj
 void node_tool::Init(Handle<Object> target) {
-    HandleScope scope;
-
     // Wrap new and make it persistend
-    Local<FunctionTemplate> local_function_template = FunctionTemplate::New(New);
-    node_tool::constructor = Persistent<FunctionTemplate>::New(local_function_template);
+    Local<FunctionTemplate> local_function_template = NanNew<FunctionTemplate>(New);
+    NanAssignPersistent(node_tool::constructor, local_function_template);
 
-    node_tool::constructor->InstanceTemplate()->SetInternalFieldCount(1);
-    node_tool::constructor->SetClassName(String::NewSymbol("object"));
+    local_function_template->InstanceTemplate()->SetInternalFieldCount(1);
+    local_function_template->SetClassName(NanNew<String>("object"));
 
     // Make our methods available to Node
-    NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "setArgs",             setArgs);
-    NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "indexTouch",          indexTouch);
-    NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "indexTouchUnsaved",   indexTouchUnsaved);
-    NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "indexStatus",         indexStatus);
-    NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "indexClear",          indexClear);
-    NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "fileAst",             fileAst);
-    NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "fileDiagnose",        fileDiagnose);
-    NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "cursorCandidatesAt",  cursorCandidatesAt);
-    NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "cursorTypeAt",        cursorTypeAt);
-    NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "cursorDeclarationAt", cursorDeclarationAt);
-    NODE_SET_PROTOTYPE_METHOD(node_tool::constructor, "cursorDefinitionAt",  cursorDefinitionAt);
+    NODE_SET_PROTOTYPE_METHOD(local_function_template, "setArgs",             setArgs);
+    NODE_SET_PROTOTYPE_METHOD(local_function_template, "indexTouch",          indexTouch);
+    NODE_SET_PROTOTYPE_METHOD(local_function_template, "indexTouchUnsaved",   indexTouchUnsaved);
+    NODE_SET_PROTOTYPE_METHOD(local_function_template, "indexStatus",         indexStatus);
+    NODE_SET_PROTOTYPE_METHOD(local_function_template, "indexClear",          indexClear);
+    NODE_SET_PROTOTYPE_METHOD(local_function_template, "fileAst",             fileAst);
+    NODE_SET_PROTOTYPE_METHOD(local_function_template, "fileDiagnose",        fileDiagnose);
+    NODE_SET_PROTOTYPE_METHOD(local_function_template, "cursorCandidatesAt",  cursorCandidatesAt);
+    NODE_SET_PROTOTYPE_METHOD(local_function_template, "cursorTypeAt",        cursorTypeAt);
+    NODE_SET_PROTOTYPE_METHOD(local_function_template, "cursorDeclarationAt", cursorDeclarationAt);
+    NODE_SET_PROTOTYPE_METHOD(local_function_template, "cursorDefinitionAt",  cursorDefinitionAt);
 
     // Add constructor to our addon
-    target->Set(String::NewSymbol("object"), node_tool::constructor->GetFunction(), ReadOnly);
+    target->Set(NanNew<String>("object"), local_function_template->GetFunction());
 
     // Add all completion types to the addon
-    target->Set(String::NewSymbol("namespace_t"),
-        Number::New(static_cast<uint32_t>(clang::completion_type::namespace_t)),
-        ReadOnly);
+    target->Set(NanNew<String>("namespace_t"),
+        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::namespace_t)));
 
-    target->Set(String::NewSymbol("class_t"),
-        Number::New(static_cast<uint32_t>(clang::completion_type::class_t)),
-        ReadOnly);
+    target->Set(NanNew<String>("class_t"),
+        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::class_t)));
 
-    target->Set(String::NewSymbol("attribute_t"),
-        Number::New(static_cast<uint32_t>(clang::completion_type::attribute_t)),
-        ReadOnly);
+    target->Set(NanNew<String>("attribute_t"),
+        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::attribute_t)));
 
-    target->Set(String::NewSymbol("method_t"),
-        Number::New(static_cast<uint32_t>(clang::completion_type::method_t)),
-        ReadOnly);
+    target->Set(NanNew<String>("method_t"),
+        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::method_t)));
 
-    target->Set(String::NewSymbol("parameter_t"),
-        Number::New(static_cast<uint32_t>(clang::completion_type::parameter_t)),
-        ReadOnly);
+    target->Set(NanNew<String>("parameter_t"),
+        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::parameter_t)));
 
-    target->Set(String::NewSymbol("struct_t"),
-        Number::New(static_cast<uint32_t>(clang::completion_type::struct_t)),
-        ReadOnly);
+    target->Set(NanNew<String>("struct_t"),
+        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::struct_t)));
 
-    target->Set(String::NewSymbol("function_t"),
-        Number::New(static_cast<uint32_t>(clang::completion_type::function_t)),
-        ReadOnly);
+    target->Set(NanNew<String>("function_t"),
+        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::function_t)));
 
-    target->Set(String::NewSymbol("enum_t"),
-        Number::New(static_cast<uint32_t>(clang::completion_type::enum_t)),
-        ReadOnly);
+    target->Set(NanNew<String>("enum_t"),
+        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::enum_t)));
 
-    target->Set(String::NewSymbol("enum_static_t"),
-        Number::New(static_cast<uint32_t>(clang::completion_type::enum_static_t)),
-        ReadOnly);
+    target->Set(NanNew<String>("enum_static_t"),
+        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::enum_static_t)));
 
-    target->Set(String::NewSymbol("union_t"),
-        Number::New(static_cast<uint32_t>(clang::completion_type::union_t)),
-        ReadOnly);
+    target->Set(NanNew<String>("union_t"),
+        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::union_t)));
 
-    target->Set(String::NewSymbol("typedef_t"),
-        Number::New(static_cast<uint32_t>(clang::completion_type::typedef_t)),
-        ReadOnly);
+    target->Set(NanNew<String>("typedef_t"),
+        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::typedef_t)));
 
-    target->Set(String::NewSymbol("variable_t"),
-        Number::New(static_cast<uint32_t>(clang::completion_type::variable_t)),
-        ReadOnly);
+    target->Set(NanNew<String>("variable_t"),
+        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::variable_t)));
 
-    target->Set(String::NewSymbol("macro_t"),
-        Number::New(static_cast<uint32_t>(clang::completion_type::macro_t)),
-        ReadOnly);
+    target->Set(NanNew<String>("macro_t"),
+        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::macro_t)));
 
-    target->Set(String::NewSymbol("include_t"),
-        Number::New(static_cast<uint32_t>(clang::completion_type::include_t)),
-        ReadOnly);
+    target->Set(NanNew<String>("include_t"),
+        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::include_t)));
 
-    target->Set(String::NewSymbol("unkown_t"),
-        Number::New(static_cast<uint32_t>(clang::completion_type::unkown_t)),
-        ReadOnly);
+    target->Set(NanNew<String>("unkown_t"),
+        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::unkown_t)));
 }
 
 /// set arguments
-Handle<Value> node_tool::setArgs(const Arguments& args) {
+NAN_METHOD(node_tool::setArgs) {
+    NanScope();
     node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
-    HandleScope scope;
 
     // make sure the syntax is correct
     if (args.Length() != 1 || !args[0]->IsArray())
-        return ThrowException(
-            Exception::SyntaxError(String::New("Usage: setArgs(Array arguments)"))
-        );
+      NanThrowError("Usage: setArgs(Array arguments)");
 
     // get arguments and relay to node_tool
     Local<Array> arr = Local<Array>::Cast(args[0]);
@@ -162,72 +143,66 @@ Handle<Value> node_tool::setArgs(const Arguments& args) {
 
     // arguments set copies it so letting it go out of scope is fine
     instance->tool.arguments_set(&args2_pointers[0], args2_pointers.size());
-    return scope.Close(Undefined());
+    NanReturnUndefined();
 }
 
 /// add / update file
-Handle<Value> node_tool::indexTouch(const Arguments& args) {
+NAN_METHOD(node_tool::indexTouch) {
+    NanScope();
     node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
-    HandleScope scope;
 
     // make sure the syntax is correct
     if (args.Length() != 1 || !args[0]->IsString())
-        return ThrowException(
-            Exception::SyntaxError(String::New("Usage: indexTouch(String path)"))
-        );
+      NanThrowError("Usage: indexTouch(String path)");
 
     String::Utf8Value str(args[0]);
     instance->tool.index_touch(*str);
-    return scope.Close(Undefined());
+    NanReturnUndefined();
 }
 
 /// add temp contents
-Handle<Value> node_tool::indexTouchUnsaved(const Arguments& args) {
+NAN_METHOD(node_tool::indexTouchUnsaved) {
+    NanScope();
     node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
-    HandleScope scope;
 
     // make sure the syntax is correct
     if (args.Length() != 2 || !args[0]->IsString() || !args[1]->IsString())
-        return ThrowException(
-            Exception::SyntaxError(String::New("Usage: indexTouchTemp(String path, String content)"))
-        );
+        NanThrowError("Usage: indexTouchTemp(String path, String content)");
 
     String::Utf8Value pStr(args[0]);
     String::Utf8Value vStr(args[1]);
 
     instance->tool.index_touch_unsaved(*pStr, *vStr, vStr.length());
-    return scope.Close(Undefined());
+    NanReturnUndefined();
 }
 
 /// memory usage
-Handle<Value> node_tool::indexStatus(const Arguments& args) {
+NAN_METHOD(node_tool::indexStatus) {
+    NanScope();
     node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
-    HandleScope scope;
 
-    Local<Array> ret = Array::New();
+    Local<Array> ret = NanNew<Array>();
     auto stat = instance->tool.index_status();
 
     uint32_t i = 0;
     for (auto &entry : stat) {
-        Local<Array> e = Array::New();
-        e->Set(0, String::New(entry.first.c_str()));
-        e->Set(1, Number::New(entry.second[CXTUResourceUsage_Combined]));
+        Local<Array> e = NanNew<Array>();
+        e->Set(0, NanNew<String>(entry.first.c_str()));
+        e->Set(1, NanNew<Number>(entry.second[CXTUResourceUsage_Combined]));
         ret->Set(i++, e);
     }
 
-    return scope.Close(ret);
+    NanReturnValue(ret);
 }
 
 // clear cache
-Handle<Value> node_tool::indexClear(const Arguments& args) {
+NAN_METHOD(node_tool::indexClear) {
+    NanScope();
     node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
-    HandleScope scope;
 
     // make sure the syntax is correct
     if (args.Length() == 1 && !args[0]->IsString())
-        return ThrowException(
-            Exception::SyntaxError(String::New("Usage: indexClear([String path])"))
-        );
+        NanThrowError("Usage: indexClear([String path])");
 
     if (args.Length()) {
         String::Utf8Value str(args[0]);
@@ -236,19 +211,17 @@ Handle<Value> node_tool::indexClear(const Arguments& args) {
         instance->tool.index_clear();
     }
 
-    return scope.Close(Undefined());
+    NanReturnUndefined();
 }
 
 /// returns file ast
-Handle<Value> node_tool::fileAst(const Arguments &args) {
+NAN_METHOD(node_tool::fileAst) {
+    NanScope();
     node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
-    HandleScope scope;
 
      // make sure the syntax is correct
     if (args.Length() != 1 || !args[0]->IsString())
-        return ThrowException(
-            Exception::SyntaxError(String::New("Usage: fileAst(String path)"))
-        );
+        NanThrowError("Usage: fileAst(String path)");
 
     String::Utf8Value str(args[0]);
     auto ast = instance->tool.tu_ast(*str);
@@ -256,135 +229,128 @@ Handle<Value> node_tool::fileAst(const Arguments &args) {
     std::function<void(clang::ast_element*, Local<Object>)> astVisitor;
     astVisitor = [&](clang::ast_element *e, Local<Object> o) {
         if (e->cursor != clang::completion_type::unkown_t) {
-            o->Set(String::New("name"), String::New(e->name.c_str()));
-            o->Set(String::New("type"), String::New(e->type.c_str()));
-            o->Set(String::New("doc"), String::New(e->doc.c_str()));
-            o->Set(String::New("cursor"), Number::New(static_cast<uint32_t>(e->cursor)));
-            o->Set(String::New("access"), Number::New(static_cast<uint32_t>(e->access)));
-            o->Set(String::New("loc_file"), String::New(e->loc.file.c_str()));
-            o->Set(String::New("loc_col"), Number::New(static_cast<uint32_t>(e->loc.col)));
-            o->Set(String::New("loc_row"), Number::New(static_cast<uint32_t>(e->loc.row)));
+            o->Set(NanNew<String>("name"), NanNew<String>(e->name.c_str()));
+            o->Set(NanNew<String>("type"), NanNew<String>(e->type.c_str()));
+            o->Set(NanNew<String>("doc"), NanNew<String>(e->doc.c_str()));
+            o->Set(NanNew<String>("cursor"), NanNew<Number>(static_cast<uint32_t>(e->cursor)));
+            o->Set(NanNew<String>("access"), NanNew<Number>(static_cast<uint32_t>(e->access)));
+            o->Set(NanNew<String>("loc_file"), NanNew<String>(e->loc.file.c_str()));
+            o->Set(NanNew<String>("loc_col"), NanNew<Number>(static_cast<uint32_t>(e->loc.col)));
+            o->Set(NanNew<String>("loc_row"), NanNew<Number>(static_cast<uint32_t>(e->loc.row)));
         }
 
-        Local<Array> children = Array::New();
+        Local<Array> children = NanNew<Array>();
         uint32_t children_idx = 0;
 
         for (auto &eC : e->children) {
-            Local<Object> c = Object::New();
+            Local<Object> c = NanNew<Object>();
             astVisitor(&eC, c);
             children->Set(children_idx++, c);
         }
 
-        o->Set(String::New("children"), children);
+        o->Set(NanNew<String>("children"), children);
     };
 
-    Local<Object> ret = Object::New();
+    Local<Object> ret = NanNew<Object>();
     astVisitor(&ast, ret);
-    return scope.Close(ret);
+
+    NanReturnValue(ret);
 }
 
 /// get file diagnostics
-Handle<Value> node_tool::fileDiagnose(const Arguments& args) {
+NAN_METHOD(node_tool::fileDiagnose) {
+    NanScope();
     node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
-    HandleScope scope;
 
     // make sure the syntax is correct
     if (args.Length() != 1 || !args[0]->IsString())
-        return ThrowException(
-            Exception::SyntaxError(String::New("Usage: fileDiagnose(String path)"))
-        );
+        NanThrowError("Usage: fileDiagnose(String path)");
 
     String::Utf8Value str(args[0]);
     auto diag = instance->tool.tu_diagnose(*str);
 
     // Convert obj to ret
-    Local<Array> ret = Array::New();
+    Local<Array> ret = NanNew<Array>();
 
     uint32_t i = 0;
     for (auto &diagnose : diag) {
-        Local<Object> e = Object::New();
-        e->Set(String::New("row"), Number::New(diagnose.loc.row));
-        e->Set(String::New("col"), Number::New(diagnose.loc.col));
-        e->Set(String::New("file"), String::New(diagnose.loc.file.c_str()));
-        e->Set(String::New("severity"), Number::New(diagnose.severity));
-        e->Set(String::New("text"), String::New(diagnose.text.c_str()));
-        e->Set(String::New("summary"), String::New(diagnose.summary.c_str()));
+        Local<Object> e = NanNew<Object>();
+        e->Set(NanNew<String>("row"), NanNew<Number>(diagnose.loc.row));
+        e->Set(NanNew<String>("col"), NanNew<Number>(diagnose.loc.col));
+        e->Set(NanNew<String>("file"), NanNew<String>(diagnose.loc.file.c_str()));
+        e->Set(NanNew<String>("severity"), NanNew<Number>(diagnose.severity));
+        e->Set(NanNew<String>("text"), NanNew<String>(diagnose.text.c_str()));
+        e->Set(NanNew<String>("summary"), NanNew<String>(diagnose.summary.c_str()));
         ret->Set(i++, e);
     }
 
-    return scope.Close(ret);
+    NanReturnValue(ret);
 }
 
 /// code completion
-Handle<Value> node_tool::cursorCandidatesAt(const Arguments& args) {
+NAN_METHOD(node_tool::cursorCandidatesAt) {
+    NanScope();
     node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
-    HandleScope scope;
 
     // make sure the syntax is correct
     if (args.Length() != 3 || !args[0]->IsString() || !args[1]->IsNumber() || !args[2]->IsNumber())
-        return ThrowException(
-            Exception::SyntaxError(String::New("Usage: cursorCandidatesAt(String path, Number row, Number column)"))
-        );
+        NanThrowError("Usage: cursorCandidatesAt(String path, Number row, Number column)");
 
     String::Utf8Value str(args[0]);
     auto row = args[1]->ToNumber();
     auto col = args[2]->ToNumber();
 
     // get completion results
-    Local<Array> ret = Array::New();
+    Local<Array> ret = NanNew<Array>();
     auto comp = instance->tool.cursor_complete(*str, row->Value(), col->Value());
 
     uint32_t j = 0;
     for (auto &candidate : comp) {
-        Local<Object> entry = Object::New();
-        Local<Array> args = Array::New();
-        entry->Set(String::New("name"), String::New(candidate.name.c_str()));
-        entry->Set(String::New("return_type"), String::New(candidate.return_type.c_str()));
-        entry->Set(String::New("type"), Number::New(static_cast<uint32_t>(candidate.type)));
-        entry->Set(String::New("brief"), String::New(candidate.brief.c_str()));
-        entry->Set(String::New("priority"), Number::New(candidate.priority));
+        Local<Object> entry = NanNew<Object>();
+        Local<Array> args = NanNew<Array>();
+        entry->Set(NanNew<String>("name"), NanNew<String>(candidate.name.c_str()));
+        entry->Set(NanNew<String>("return_type"), NanNew<String>(candidate.return_type.c_str()));
+        entry->Set(NanNew<String>("type"), NanNew<Number>(static_cast<uint32_t>(candidate.type)));
+        entry->Set(NanNew<String>("brief"), NanNew<String>(candidate.brief.c_str()));
+        entry->Set(NanNew<String>("priority"), NanNew<Number>(candidate.priority));
 
         for (uint32_t i = 0; i < candidate.args.size(); ++i) {
-            args->Set(i, String::New(candidate.args[i].c_str()));
+            args->Set(i, NanNew<String>(candidate.args[i].c_str()));
         }
 
-        entry->Set(String::New("args"), args);
+        entry->Set(NanNew<String>("args"), args);
         ret->Set(j++, entry);
     }
 
-    return scope.Close(ret);
+    NanReturnValue(ret);
 }
 
 /// get type at
-Handle<Value> node_tool::cursorTypeAt(const Arguments& args) {
+NAN_METHOD(node_tool::cursorTypeAt) {
+    NanScope();
     node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
-    HandleScope scope;
 
     // make sure the syntax is correct
     if (args.Length() != 3 || !args[0]->IsString() || !args[1]->IsNumber() || !args[2]->IsNumber())
-        return ThrowException(
-            Exception::SyntaxError(String::New("Usage: cursorTypeAt(String path, Number row, Number column)"))
-        );
+        NanThrowError("Usage: cursorTypeAt(String path, Number row, Number column)");
 
     String::Utf8Value str(args[0]);
     auto row = args[1]->ToNumber();
     auto col = args[2]->ToNumber();
 
-    return scope.Close(
-        String::New(instance->tool.cursor_type(*str, row->Value(), col->Value()).c_str())
+    NanReturnValue(
+        NanNew<String>(instance->tool.cursor_type(*str, row->Value(), col->Value()).c_str())
     );
 }
 
 /// get decleration for pos
-Handle<Value> node_tool::cursorDeclarationAt(const Arguments& args) {
+NAN_METHOD(node_tool::cursorDeclarationAt) {
+    NanScope();
     node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
-    HandleScope scope;
 
     // make sure the syntax is correct
     if (args.Length() != 3 || !args[0]->IsString() || !args[1]->IsNumber() || !args[2]->IsNumber())
-        return ThrowException(
-            Exception::SyntaxError(String::New("Usage: cursorTypeAt(String path, Number row, Number column)"))
-        );
+        NanThrowError("Usage: cursorTypeAt(String path, Number row, Number column)");
 
     String::Utf8Value str(args[0]);
     auto row = args[1]->ToNumber();
@@ -392,24 +358,22 @@ Handle<Value> node_tool::cursorDeclarationAt(const Arguments& args) {
 
     auto loc = instance->tool.cursor_declaration(*str, row->Value(), col->Value());
 
-    Local<Object> ret = Object::New();
-    ret->Set(String::New("file"), String::New(loc.file.c_str()));
-    ret->Set(String::New("row"), Number::New(loc.row));
-    ret->Set(String::New("col"), Number::New(loc.col));
+    Local<Object> ret = NanNew<Object>();
+    ret->Set(NanNew<String>("file"), NanNew<String>(loc.file.c_str()));
+    ret->Set(NanNew<String>("row"), NanNew<Number>(loc.row));
+    ret->Set(NanNew<String>("col"), NanNew<Number>(loc.col));
 
-    return scope.Close(ret);
+    NanReturnValue(ret);
 }
 
 /// get definition for pos
-Handle<Value> node_tool::cursorDefinitionAt(const Arguments& args) {
+NAN_METHOD(node_tool::cursorDefinitionAt) {
+    NanScope();
     node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
-    HandleScope scope;
 
     // make sure the syntax is correct
     if (args.Length() != 3 || !args[0]->IsString() || !args[1]->IsNumber() || !args[2]->IsNumber())
-        return ThrowException(
-            Exception::SyntaxError(String::New("Usage: cursorTypeAt(String path, Number row, Number column)"))
-        );
+        NanThrowError("Usage: cursorTypeAt(String path, Number row, Number column)");
 
     String::Utf8Value str(args[0]);
     auto row = args[1]->ToNumber();
@@ -417,12 +381,12 @@ Handle<Value> node_tool::cursorDefinitionAt(const Arguments& args) {
 
     auto loc = instance->tool.cursor_definition(*str, row->Value(), col->Value());
 
-    Local<Object> ret = Object::New();
-    ret->Set(String::New("file"), String::New(loc.file.c_str()));
-    ret->Set(String::New("row"), Number::New(loc.row));
-    ret->Set(String::New("col"), Number::New(loc.col));
+    Local<Object> ret = NanNew<Object>();
+    ret->Set(NanNew<String>("file"), NanNew<String>(loc.file.c_str()));
+    ret->Set(NanNew<String>("row"), NanNew<Number>(loc.row));
+    ret->Set(NanNew<String>("col"), NanNew<Number>(loc.col));
 
-    return scope.Close(ret);
+    NanReturnValue(ret);
 }
 
 /// module initialization
