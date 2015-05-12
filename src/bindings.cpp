@@ -231,6 +231,7 @@ NAN_METHOD(node_tool::fileAst) {
         if (e->cursor != clang::completion_type::unkown_t) {
             o->Set(NanNew<String>("name"), NanNew<String>(e->name.c_str()));
             o->Set(NanNew<String>("type"), NanNew<String>(e->type.c_str()));
+            o->Set(NanNew<String>("typedef"), NanNew<String>(e->typedefType.c_str()));
             o->Set(NanNew<String>("doc"), NanNew<String>(e->doc.c_str()));
             o->Set(NanNew<String>("cursor"), NanNew<Number>(static_cast<uint32_t>(e->cursor)));
             o->Set(NanNew<String>("access"), NanNew<Number>(static_cast<uint32_t>(e->access)));
