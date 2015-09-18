@@ -1,0 +1,3 @@
+[submodule "src/clang"]
+	path = src/clang
+	url = git@github.com:invokr/clang-tool.git
