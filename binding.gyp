@@ -19,20 +19,22 @@
         "-Wno-unused-variable",
         "-Wno-unused-function",
         "-Wno-unused-private-field",
-
-        "-I/usr/local/llvm34/include",
-        "-I/usr/local/llvm35/include",
-        "-I/usr/lib",
-        "-I/usr/lib64",
-        "-I/usr/lib/llvm",
-        "-I/usr/lib64/llvm"
-        "-I/usr/include",
-        "-I/usr/include/llvm",
-        "-I/usr/local/include",
-        "-I/usr/local/include/llvm",
-        "-I/usr/lib/llvm-3.5/include"
       ],
-
+      "include_dirs": [
+        "/usr/local/llvm34/include",
+        "/usr/local/llvm35/include",
+        "/usr/lib",
+        "/usr/lib64",
+        "/usr/lib/llvm",
+        "/usr/lib64/llvm"
+        "/usr/include",
+        "/usr/include/llvm",
+        "/usr/local/include",
+        "/usr/local/include/llvm",
+        "/usr/lib/llvm-3.5/include",
+        "/opt/local/libexec/llvm-3.7/include",
+        '<!(node -e "require(\'nan\')")'
+      ],
       "libraries": [
         "-lclang",
 
@@ -41,8 +43,22 @@
         "-L/usr/lib/x86_64-linux-gnu/",
         "-L/usr/lib/i386-linux-gnu/",
         "-L/usr/lib/llvm-3.5/lib",
-        "-L/usr/lib/llvm-3.4/lib"
-      ]
+        "-L/usr/lib/llvm-3.4/lib",
+        "-L/opt/local/libexec/llvm-3.7/lib"
+      ],
+      'xcode_settings': {
+        'OTHER_CFLAGS': [
+          "-stdlib=libc++",
+          "-mmacosx-version-min=10.7",
+          "-O3",
+          "-fomit-frame-pointer",
+          "-std=c++11",
+          "-Wall",
+          "-Wno-unused-variable",
+          "-Wno-unused-function",
+          "-Wno-unused-private-field",
+        ]
+      }
     }
   ]
 }
