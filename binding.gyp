@@ -64,7 +64,6 @@
           "-Wall",
           "-Wno-unused-variable",
           "-Wno-unused-function",
-          "-Wno-unused-private-field",
         ]
       }
     }
