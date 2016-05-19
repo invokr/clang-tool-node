@@ -7,7 +7,7 @@
     "test": "node-gyp configure build"
   },
   "dependencies": {
-    "nan": "1.9.0"
+    "nan": "2.3.3"
   },
   "repository": {
     "type": "git",
