@@ -27,113 +27,111 @@
 #include "bindings.hpp"
 
 /// persistance between calls
-Persistent<FunctionTemplate> node_tool::constructor;
+Nan::Persistent<FunctionTemplate> node_tool::constructor;
 
 /// constructor
-node_tool::node_tool() : ObjectWrap() {}
+node_tool::node_tool() : Nan::ObjectWrap() {}
 
 /// destructor
 node_tool::~node_tool() {}
 
 /// new
 NAN_METHOD(node_tool::New) {
-    NanScope();
 
     node_tool *ntool = new node_tool();
-    ntool->Wrap(args.This());
+    ntool->Wrap(info.This());
 
-    NanReturnValue(args.This());
+    info.GetReturnValue().Set(info.This());
 }
 
 /// initializes the njs obj
 void node_tool::Init(Handle<Object> target) {
     // Wrap new and make it persistend
-    Local<FunctionTemplate> local_function_template = NanNew<FunctionTemplate>(New);
-    NanAssignPersistent(node_tool::constructor, local_function_template);
+    Local<FunctionTemplate> local_function_template = Nan::New<FunctionTemplate>(New);
+    node_tool::constructor.Reset(local_function_template);
 
     local_function_template->InstanceTemplate()->SetInternalFieldCount(1);
-    local_function_template->SetClassName(NanNew<String>("object"));
+    local_function_template->SetClassName(Nan::New<String>("object").ToLocalChecked());
 
     // Make our methods available to Node
-    NODE_SET_PROTOTYPE_METHOD(local_function_template, "setArgs",             setArgs);
-    NODE_SET_PROTOTYPE_METHOD(local_function_template, "indexTouch",          indexTouch);
-    NODE_SET_PROTOTYPE_METHOD(local_function_template, "indexTouchUnsaved",   indexTouchUnsaved);
-    NODE_SET_PROTOTYPE_METHOD(local_function_template, "indexStatus",         indexStatus);
-    NODE_SET_PROTOTYPE_METHOD(local_function_template, "indexClear",          indexClear);
-    NODE_SET_PROTOTYPE_METHOD(local_function_template, "fileAst",             fileAst);
-    NODE_SET_PROTOTYPE_METHOD(local_function_template, "fileDiagnose",        fileDiagnose);
-    NODE_SET_PROTOTYPE_METHOD(local_function_template, "cursorCandidatesAt",  cursorCandidatesAt);
-    NODE_SET_PROTOTYPE_METHOD(local_function_template, "cursorTypeAt",        cursorTypeAt);
-    NODE_SET_PROTOTYPE_METHOD(local_function_template, "cursorDeclarationAt", cursorDeclarationAt);
-    NODE_SET_PROTOTYPE_METHOD(local_function_template, "cursorDefinitionAt",  cursorDefinitionAt);
+    Nan::SetPrototypeMethod(local_function_template, "setArgs",             setArgs);
+    Nan::SetPrototypeMethod(local_function_template, "indexTouch",          indexTouch);
+    Nan::SetPrototypeMethod(local_function_template, "indexTouchUnsaved",   indexTouchUnsaved);
+    Nan::SetPrototypeMethod(local_function_template, "indexStatus",         indexStatus);
+    Nan::SetPrototypeMethod(local_function_template, "indexClear",          indexClear);
+    Nan::SetPrototypeMethod(local_function_template, "fileAst",             fileAst);
+    Nan::SetPrototypeMethod(local_function_template, "fileDiagnose",        fileDiagnose);
+    Nan::SetPrototypeMethod(local_function_template, "cursorCandidatesAt",  cursorCandidatesAt);
+    Nan::SetPrototypeMethod(local_function_template, "cursorTypeAt",        cursorTypeAt);
+    Nan::SetPrototypeMethod(local_function_template, "cursorDeclarationAt", cursorDeclarationAt);
+    Nan::SetPrototypeMethod(local_function_template, "cursorDefinitionAt",  cursorDefinitionAt);
 
     // Add constructor to our addon
-    target->Set(NanNew<String>("object"), local_function_template->GetFunction());
+    target->Set(Nan::New("object").ToLocalChecked(), local_function_template->GetFunction());
 
     // Add all completion types to the addon
-    target->Set(NanNew<String>("namespace_t"),
-        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::namespace_t)));
+    Nan::Set(target, Nan::New<String>("namespace_t").ToLocalChecked(),
+        Nan::New<Number>(static_cast<uint32_t>(clang::completion_type::namespace_t)));
 
-    target->Set(NanNew<String>("class_t"),
-        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::class_t)));
+    Nan::Set(target, Nan::New<String>("class_t").ToLocalChecked(),
+        Nan::New<Number>(static_cast<uint32_t>(clang::completion_type::class_t)));
 
-    target->Set(NanNew<String>("attribute_t"),
-        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::attribute_t)));
+    Nan::Set(target, Nan::New<String>("attribute_t").ToLocalChecked(),
+        Nan::New<Number>(static_cast<uint32_t>(clang::completion_type::attribute_t)));
 
-    target->Set(NanNew<String>("method_t"),
-        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::method_t)));
+    Nan::Set(target, Nan::New<String>("method_t").ToLocalChecked(),
+        Nan::New<Number>(static_cast<uint32_t>(clang::completion_type::method_t)));
 
-    target->Set(NanNew<String>("parameter_t"),
-        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::parameter_t)));
+    Nan::Set(target, Nan::New<String>("parameter_t").ToLocalChecked(),
+        Nan::New<Number>(static_cast<uint32_t>(clang::completion_type::parameter_t)));
 
-    target->Set(NanNew<String>("struct_t"),
-        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::struct_t)));
+    Nan::Set(target, Nan::New<String>("struct_t").ToLocalChecked(),
+        Nan::New<Number>(static_cast<uint32_t>(clang::completion_type::struct_t)));
 
-    target->Set(NanNew<String>("function_t"),
-        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::function_t)));
+    Nan::Set(target, Nan::New<String>("function_t").ToLocalChecked(),
+        Nan::New<Number>(static_cast<uint32_t>(clang::completion_type::function_t)));
 
-    target->Set(NanNew<String>("enum_t"),
-        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::enum_t)));
+    Nan::Set(target, Nan::New<String>("enum_t").ToLocalChecked(),
+        Nan::New<Number>(static_cast<uint32_t>(clang::completion_type::enum_t)));
 
-    target->Set(NanNew<String>("enum_static_t"),
-        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::enum_static_t)));
+    Nan::Set(target, Nan::New<String>("enum_static_t").ToLocalChecked(),
+        Nan::New<Number>(static_cast<uint32_t>(clang::completion_type::enum_static_t)));
 
-    target->Set(NanNew<String>("union_t"),
-        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::union_t)));
+    Nan::Set(target, Nan::New<String>("union_t").ToLocalChecked(),
+        Nan::New<Number>(static_cast<uint32_t>(clang::completion_type::union_t)));
 
-    target->Set(NanNew<String>("typedef_t"),
-        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::typedef_t)));
+    Nan::Set(target, Nan::New<String>("typedef_t").ToLocalChecked(),
+        Nan::New<Number>(static_cast<uint32_t>(clang::completion_type::typedef_t)));
 
-    target->Set(NanNew<String>("variable_t"),
-        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::variable_t)));
+    Nan::Set(target, Nan::New<String>("variable_t").ToLocalChecked(),
+        Nan::New<Number>(static_cast<uint32_t>(clang::completion_type::variable_t)));
 
-    target->Set(NanNew<String>("macro_t"),
-        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::macro_t)));
+    Nan::Set(target, Nan::New<String>("macro_t").ToLocalChecked(),
+        Nan::New<Number>(static_cast<uint32_t>(clang::completion_type::macro_t)));
 
-    target->Set(NanNew<String>("include_t"),
-        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::include_t)));
+    Nan::Set(target, Nan::New<String>("include_t").ToLocalChecked(),
+        Nan::New<Number>(static_cast<uint32_t>(clang::completion_type::include_t)));
 
-    target->Set(NanNew<String>("unkown_t"),
-        NanNew<Number>(static_cast<uint32_t>(clang::completion_type::unkown_t)));
+    Nan::Set(target, Nan::New<String>("unkown_t").ToLocalChecked(),
+        Nan::New<Number>(static_cast<uint32_t>(clang::completion_type::unkown_t)));
 }
 
 /// set arguments
 NAN_METHOD(node_tool::setArgs) {
-    NanScope();
-    node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
+    node_tool* instance = Nan::ObjectWrap::Unwrap<node_tool>(info.This());
 
     // make sure the syntax is correct
-    if (args.Length() != 1 || !args[0]->IsArray())
-      NanThrowError("Usage: setArgs(Array arguments)");
+    if (info.Length() != 1 || !info[0]->IsArray())
+      Nan::ThrowError("Usage: setArgs(Array arguments)");
 
     // get arguments and relay to node_tool
-    Local<Array> arr = Local<Array>::Cast(args[0]);
+    Local<Array> arr = Local<Array>::Cast(info[0]);
     std::vector<std::string> args2;
     std::vector<const char*> args2_pointers(arr->Length());
 
     // copy the node array to args2
     for (std::size_t i = 0; i < arr->Length(); ++i) {
-        String::Utf8Value str(arr->Get(i));
+        String::Utf8Value str(arr->Get(i));;
         args2.push_back( *str );
     }
 
@@ -143,251 +141,241 @@ NAN_METHOD(node_tool::setArgs) {
 
     // arguments set copies it so letting it go out of scope is fine
     instance->tool.arguments_set(&args2_pointers[0], args2_pointers.size());
-    NanReturnUndefined();
+    return;
 }
 
 /// add / update file
 NAN_METHOD(node_tool::indexTouch) {
-    NanScope();
-    node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
+    node_tool* instance = Nan::ObjectWrap::Unwrap<node_tool>(info.This());
 
     // make sure the syntax is correct
-    if (args.Length() != 1 || !args[0]->IsString())
-      NanThrowError("Usage: indexTouch(String path)");
+    if (info.Length() != 1 || !info[0]->IsString())
+      Nan::ThrowError("Usage: indexTouch(String path)");
 
-    String::Utf8Value str(args[0]);
+    String::Utf8Value str(info[0]);
     instance->tool.index_touch(*str);
-    NanReturnUndefined();
+    return;
 }
 
 /// add temp contents
 NAN_METHOD(node_tool::indexTouchUnsaved) {
-    NanScope();
-    node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
+    node_tool* instance = Nan::ObjectWrap::Unwrap<node_tool>(info.This());
 
     // make sure the syntax is correct
-    if (args.Length() != 2 || !args[0]->IsString() || !args[1]->IsString())
-        NanThrowError("Usage: indexTouchTemp(String path, String content)");
+    if (info.Length() != 2 || !info[0]->IsString() || !info[1]->IsString())
+        Nan::ThrowError("Usage: indexTouchTemp(String path, String content)");
 
-    String::Utf8Value pStr(args[0]);
-    String::Utf8Value vStr(args[1]);
+    String::Utf8Value pStr(info[0]);
+    String::Utf8Value vStr(info[1]);
 
     instance->tool.index_touch_unsaved(*pStr, *vStr, vStr.length());
-    NanReturnUndefined();
+    return;
 }
 
 /// memory usage
 NAN_METHOD(node_tool::indexStatus) {
-    NanScope();
-    node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
+    node_tool* instance = Nan::ObjectWrap::Unwrap<node_tool>(info.This());
 
-    Local<Array> ret = NanNew<Array>();
+    Local<Array> ret = Nan::New<Array>();
     auto stat = instance->tool.index_status();
 
     uint32_t i = 0;
     for (auto &entry : stat) {
-        Local<Array> e = NanNew<Array>();
-        e->Set(0, NanNew<String>(entry.first.c_str()));
-        e->Set(1, NanNew<Number>(entry.second[CXTUResourceUsage_Combined]));
-        ret->Set(i++, e);
+        Local<Array> e = Nan::New<Array>();
+        Nan::Set(e, Nan::New(0), Nan::New<String>(entry.first.c_str()).ToLocalChecked());
+        Nan::Set(e, Nan::New(1), Nan::New<Number>(entry.second[CXTUResourceUsage_Combined]));
+        Nan::Set(ret, i++, e);
     }
 
-    NanReturnValue(ret);
+    info.GetReturnValue().Set(ret);
 }
 
 // clear cache
 NAN_METHOD(node_tool::indexClear) {
-    NanScope();
-    node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
+    node_tool* instance = Nan::ObjectWrap::Unwrap<node_tool>(info.This());
 
     // make sure the syntax is correct
-    if (args.Length() == 1 && !args[0]->IsString())
-        NanThrowError("Usage: indexClear([String path])");
+    if (info.Length() == 1 && !info[0]->IsString())
+        Nan::ThrowError("Usage: indexClear([String path])");
 
-    if (args.Length()) {
-        String::Utf8Value str(args[0]);
+    if (info.Length()) {
+        String::Utf8Value str(info[0]);
         instance->tool.index_remove(*str);
     } else {
         instance->tool.index_clear();
     }
 
-    NanReturnUndefined();
+    return;
 }
 
 /// returns file ast
 NAN_METHOD(node_tool::fileAst) {
-    NanScope();
-    node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
+    node_tool* instance = Nan::ObjectWrap::Unwrap<node_tool>(info.This());
 
      // make sure the syntax is correct
-    if (args.Length() != 1 || !args[0]->IsString())
-        NanThrowError("Usage: fileAst(String path)");
+    if (info.Length() != 1 || !info[0]->IsString())
+        Nan::ThrowError("Usage: fileAst(String path)");
 
-    String::Utf8Value str(args[0]);
+    String::Utf8Value str(info[0]);
     auto ast = instance->tool.tu_ast(*str);
 
     std::function<void(clang::ast_element*, Local<Object>)> astVisitor;
     astVisitor = [&](clang::ast_element *e, Local<Object> o) {
         if (e->cursor != clang::completion_type::unkown_t) {
-            o->Set(NanNew<String>("name"), NanNew<String>(e->name.c_str()));
-            o->Set(NanNew<String>("type"), NanNew<String>(e->type.c_str()));
-            o->Set(NanNew<String>("typedef"), NanNew<String>(e->typedefType.c_str()));
-            o->Set(NanNew<String>("doc"), NanNew<String>(e->doc.c_str()));
-            o->Set(NanNew<String>("cursor"), NanNew<Number>(static_cast<uint32_t>(e->cursor)));
-            o->Set(NanNew<String>("access"), NanNew<Number>(static_cast<uint32_t>(e->access)));
-            o->Set(NanNew<String>("loc_file"), NanNew<String>(e->loc.file.c_str()));
-            o->Set(NanNew<String>("loc_col"), NanNew<Number>(static_cast<uint32_t>(e->loc.col)));
-            o->Set(NanNew<String>("loc_row"), NanNew<Number>(static_cast<uint32_t>(e->loc.row)));
+            Nan::Set(o, Nan::New<String>("name").ToLocalChecked(), Nan::New<String>(e->name.c_str()).ToLocalChecked());
+            Nan::Set(o, Nan::New<String>("type").ToLocalChecked(), Nan::New<String>(e->type.c_str()).ToLocalChecked());
+            Nan::Set(o, Nan::New<String>("typedef").ToLocalChecked(), Nan::New<String>(e->typedefType.c_str()).ToLocalChecked());
+            Nan::Set(o, Nan::New<String>("doc").ToLocalChecked(), Nan::New<String>(e->doc.c_str()).ToLocalChecked());
+            Nan::Set(o, Nan::New<String>("cursor").ToLocalChecked(), Nan::New<Number>(static_cast<uint32_t>(e->cursor)));
+            Nan::Set(o, Nan::New<String>("access").ToLocalChecked(), Nan::New<Number>(static_cast<uint32_t>(e->access)));
+            Nan::Set(o, Nan::New<String>("loc_file").ToLocalChecked(), Nan::New<String>(e->loc.file.c_str()).ToLocalChecked());
+            Nan::Set(o, Nan::New<String>("loc_col").ToLocalChecked(), Nan::New<Number>(static_cast<uint32_t>(e->loc.col)));
+            Nan::Set(o, Nan::New<String>("loc_row").ToLocalChecked(), Nan::New<Number>(static_cast<uint32_t>(e->loc.row)));
         }
 
-        Local<Array> children = NanNew<Array>();
+        Local<Array> children = Nan::New<Array>();
         uint32_t children_idx = 0;
 
         for (auto &eC : e->children) {
-            Local<Object> c = NanNew<Object>();
+            Local<Object> c = Nan::New<Object>();
             astVisitor(&eC, c);
-            children->Set(children_idx++, c);
+            Nan::Set(children, children_idx++, c);
         }
 
-        o->Set(NanNew<String>("children"), children);
+        Nan::Set(o, Nan::New<String>("children").ToLocalChecked(), children);
     };
 
-    Local<Object> ret = NanNew<Object>();
+    Local<Object> ret = Nan::New<Object>();
     astVisitor(&ast, ret);
 
-    NanReturnValue(ret);
+    info.GetReturnValue().Set(ret);
 }
 
 /// get file diagnostics
 NAN_METHOD(node_tool::fileDiagnose) {
-    NanScope();
-    node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
+    node_tool* instance = Nan::ObjectWrap::Unwrap<node_tool>(info.This());
 
     // make sure the syntax is correct
-    if (args.Length() != 1 || !args[0]->IsString())
-        NanThrowError("Usage: fileDiagnose(String path)");
+    if (info.Length() != 1 || !info[0]->IsString())
+        Nan::ThrowError("Usage: fileDiagnose(String path)");
 
-    String::Utf8Value str(args[0]);
+    String::Utf8Value str(info[0]);
     auto diag = instance->tool.tu_diagnose(*str);
 
     // Convert obj to ret
-    Local<Array> ret = NanNew<Array>();
+    Local<Array> ret = Nan::New<Array>();
 
     uint32_t i = 0;
     for (auto &diagnose : diag) {
-        Local<Object> e = NanNew<Object>();
-        e->Set(NanNew<String>("row"), NanNew<Number>(diagnose.loc.row));
-        e->Set(NanNew<String>("col"), NanNew<Number>(diagnose.loc.col));
-        e->Set(NanNew<String>("file"), NanNew<String>(diagnose.loc.file.c_str()));
-        e->Set(NanNew<String>("severity"), NanNew<Number>(diagnose.severity));
-        e->Set(NanNew<String>("text"), NanNew<String>(diagnose.text.c_str()));
-        e->Set(NanNew<String>("summary"), NanNew<String>(diagnose.summary.c_str()));
-        ret->Set(i++, e);
+        Local<Object> e = Nan::New<Object>();
+        Nan::Set(e, Nan::New<String>("row").ToLocalChecked(), Nan::New<Number>(diagnose.loc.row));
+        Nan::Set(e, Nan::New<String>("col").ToLocalChecked(), Nan::New<Number>(diagnose.loc.col));
+        Nan::Set(e, Nan::New<String>("file").ToLocalChecked(), Nan::New<String>(diagnose.loc.file.c_str()).ToLocalChecked());
+        Nan::Set(e, Nan::New<String>("severity").ToLocalChecked(), Nan::New<Number>(diagnose.severity));
+        Nan::Set(e, Nan::New<String>("text").ToLocalChecked(), Nan::New<String>(diagnose.text.c_str()).ToLocalChecked());
+        Nan::Set(e, Nan::New<String>("summary").ToLocalChecked(), Nan::New<String>(diagnose.summary.c_str()).ToLocalChecked());
+        Nan::Set(ret, i++, e);
     }
 
-    NanReturnValue(ret);
+    info.GetReturnValue().Set(ret);
 }
 
 /// code completion
 NAN_METHOD(node_tool::cursorCandidatesAt) {
-    NanScope();
-    node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
+    node_tool* instance = Nan::ObjectWrap::Unwrap<node_tool>(info.This());
 
     // make sure the syntax is correct
-    if (args.Length() != 3 || !args[0]->IsString() || !args[1]->IsNumber() || !args[2]->IsNumber())
-        NanThrowError("Usage: cursorCandidatesAt(String path, Number row, Number column)");
+    if (info.Length() != 3 || !info[0]->IsString() || !info[1]->IsNumber() || !info[2]->IsNumber())
+        Nan::ThrowError("Usage: cursorCandidatesAt(String path, Number row, Number column)");
 
-    String::Utf8Value str(args[0]);
-    auto row = args[1]->ToNumber();
-    auto col = args[2]->ToNumber();
+    String::Utf8Value str(info[0]);
+    auto row = info[1]->ToNumber();
+    auto col = info[2]->ToNumber();
 
     // get completion results
-    Local<Array> ret = NanNew<Array>();
+    Local<Array> ret = Nan::New<Array>();
     auto comp = instance->tool.cursor_complete(*str, row->Value(), col->Value());
 
     uint32_t j = 0;
     for (auto &candidate : comp) {
-        Local<Object> entry = NanNew<Object>();
-        Local<Array> args = NanNew<Array>();
-        entry->Set(NanNew<String>("name"), NanNew<String>(candidate.name.c_str()));
-        entry->Set(NanNew<String>("return_type"), NanNew<String>(candidate.return_type.c_str()));
-        entry->Set(NanNew<String>("type"), NanNew<Number>(static_cast<uint32_t>(candidate.type)));
-        entry->Set(NanNew<String>("brief"), NanNew<String>(candidate.brief.c_str()));
-        entry->Set(NanNew<String>("priority"), NanNew<Number>(candidate.priority));
+        Local<Object> entry = Nan::New<Object>();
+        Local<Array> info = Nan::New<Array>();
+        Nan::Set(entry, Nan::New<String>("name").ToLocalChecked(), Nan::New<String>(candidate.name.c_str()).ToLocalChecked());
+        Nan::Set(entry, Nan::New<String>("return_type").ToLocalChecked(), Nan::New<String>(candidate.return_type.c_str()).ToLocalChecked());
+        Nan::Set(entry, Nan::New<String>("type").ToLocalChecked(), Nan::New<Number>(static_cast<uint32_t>(candidate.type)));
+        Nan::Set(entry, Nan::New<String>("brief").ToLocalChecked(), Nan::New<String>(candidate.brief.c_str()).ToLocalChecked());
+        Nan::Set(entry, Nan::New<String>("priority").ToLocalChecked(), Nan::New<Number>(candidate.priority));
 
         for (uint32_t i = 0; i < candidate.args.size(); ++i) {
-            args->Set(i, NanNew<String>(candidate.args[i].c_str()));
+            Nan::Set(info, i, Nan::New<String>(candidate.args[i].c_str()).ToLocalChecked());
         }
 
-        entry->Set(NanNew<String>("args"), args);
-        ret->Set(j++, entry);
+        Nan::Set(entry, Nan::New<String>("info").ToLocalChecked(), info);
+        Nan::Set(ret, j++, entry);
     }
 
-    NanReturnValue(ret);
+    info.GetReturnValue().Set(ret);
 }
 
 /// get type at
 NAN_METHOD(node_tool::cursorTypeAt) {
-    NanScope();
-    node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
+    node_tool* instance = Nan::ObjectWrap::Unwrap<node_tool>(info.This());
 
     // make sure the syntax is correct
-    if (args.Length() != 3 || !args[0]->IsString() || !args[1]->IsNumber() || !args[2]->IsNumber())
-        NanThrowError("Usage: cursorTypeAt(String path, Number row, Number column)");
+    if (info.Length() != 3 || !info[0]->IsString() || !info[1]->IsNumber() || !info[2]->IsNumber())
+        Nan::ThrowError("Usage: cursorTypeAt(String path, Number row, Number column)");
 
-    String::Utf8Value str(args[0]);
-    auto row = args[1]->ToNumber();
-    auto col = args[2]->ToNumber();
+    String::Utf8Value str(info[0]);
+    auto row = info[1]->ToNumber();
+    auto col = info[2]->ToNumber();
 
-    NanReturnValue(
-        NanNew<String>(instance->tool.cursor_type(*str, row->Value(), col->Value()).c_str())
+    info.GetReturnValue().Set(
+        Nan::New<String>(instance->tool.cursor_type(*str, row->Value(), col->Value()).c_str()).ToLocalChecked()
     );
 }
 
 /// get decleration for pos
 NAN_METHOD(node_tool::cursorDeclarationAt) {
-    NanScope();
-    node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
+    node_tool* instance = Nan::ObjectWrap::Unwrap<node_tool>(info.This());
 
     // make sure the syntax is correct
-    if (args.Length() != 3 || !args[0]->IsString() || !args[1]->IsNumber() || !args[2]->IsNumber())
-        NanThrowError("Usage: cursorTypeAt(String path, Number row, Number column)");
+    if (info.Length() != 3 || !info[0]->IsString() || !info[1]->IsNumber() || !info[2]->IsNumber())
+        Nan::ThrowError("Usage: cursorTypeAt(String path, Number row, Number column)");
 
-    String::Utf8Value str(args[0]);
-    auto row = args[1]->ToNumber();
-    auto col = args[2]->ToNumber();
+    String::Utf8Value str(info[0]);
+    auto row = info[1]->ToNumber();
+    auto col = info[2]->ToNumber();
 
     auto loc = instance->tool.cursor_declaration(*str, row->Value(), col->Value());
 
-    Local<Object> ret = NanNew<Object>();
-    ret->Set(NanNew<String>("file"), NanNew<String>(loc.file.c_str()));
-    ret->Set(NanNew<String>("row"), NanNew<Number>(loc.row));
-    ret->Set(NanNew<String>("col"), NanNew<Number>(loc.col));
+    Local<Object> ret = Nan::New<Object>();
+    Nan::Set(ret, Nan::New<String>("file").ToLocalChecked(), Nan::New<String>(loc.file.c_str()).ToLocalChecked());
+    Nan::Set(ret, Nan::New<String>("row").ToLocalChecked(), Nan::New<Number>(loc.row));
+    Nan::Set(ret, Nan::New<String>("col").ToLocalChecked(), Nan::New<Number>(loc.col));
 
-    NanReturnValue(ret);
+    info.GetReturnValue().Set(ret);
 }
 
 /// get definition for pos
 NAN_METHOD(node_tool::cursorDefinitionAt) {
-    NanScope();
-    node_tool* instance = node::ObjectWrap::Unwrap<node_tool>(args.This());
+    node_tool* instance = Nan::ObjectWrap::Unwrap<node_tool>(info.This());
 
     // make sure the syntax is correct
-    if (args.Length() != 3 || !args[0]->IsString() || !args[1]->IsNumber() || !args[2]->IsNumber())
-        NanThrowError("Usage: cursorTypeAt(String path, Number row, Number column)");
+    if (info.Length() != 3 || !info[0]->IsString() || !info[1]->IsNumber() || !info[2]->IsNumber())
+        Nan::ThrowError("Usage: cursorTypeAt(String path, Number row, Number column)");
 
-    String::Utf8Value str(args[0]);
-    auto row = args[1]->ToNumber();
-    auto col = args[2]->ToNumber();
+    String::Utf8Value str(info[0]);
+    auto row = info[1]->ToNumber();
+    auto col = info[2]->ToNumber();
 
     auto loc = instance->tool.cursor_definition(*str, row->Value(), col->Value());
 
-    Local<Object> ret = NanNew<Object>();
-    ret->Set(NanNew<String>("file"), NanNew<String>(loc.file.c_str()));
-    ret->Set(NanNew<String>("row"), NanNew<Number>(loc.row));
-    ret->Set(NanNew<String>("col"), NanNew<Number>(loc.col));
+    Local<Object> ret = Nan::New<Object>();
+    Nan::Set(ret, Nan::New<String>("file").ToLocalChecked(), Nan::New<String>(loc.file.c_str()).ToLocalChecked());
+    Nan::Set(ret, Nan::New<String>("row").ToLocalChecked(), Nan::New<Number>(loc.row));
+    Nan::Set(ret, Nan::New<String>("col").ToLocalChecked(), Nan::New<Number>(loc.col));
 
-    NanReturnValue(ret);
+    info.GetReturnValue().Set(ret);
 }
 
 /// module initialization

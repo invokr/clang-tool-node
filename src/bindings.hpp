@@ -29,10 +29,10 @@
 
 using namespace v8;
 
-class node_tool : public node::ObjectWrap {
+class node_tool : public Nan::ObjectWrap {
 public:
     /** Persistend class obj for v8 */
-    static Persistent<FunctionTemplate> constructor;
+    static Nan::Persistent<FunctionTemplate> constructor;
 
     /** Node's initialize function */
     static void Init(Handle<Object> target);
