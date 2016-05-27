@@ -23,6 +23,11 @@ Usage
 
 See demo/demo.js for a quick example.
 
+Contributers
+------------
+
+[Code Hz](https://github.com/codehz) 
+
 API
 ---
 
