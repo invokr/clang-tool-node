@@ -18,7 +18,7 @@
         "-Wall",
         "-Wno-unused-variable",
         "-Wno-unused-function",
-        "-Wno-unused-private-field",
+        "-Wno-unused-private-field"
       ],
       "include_dirs": [
         "/usr/local/llvm34/include",
@@ -37,7 +37,8 @@
         "/usr/lib/llvm-3.6/include",
         "/usr/lib/llvm-3.7/include",
         "/opt/local/libexec/llvm-3.7/include",
-        '<!(node -e "require(\'nan\')")'
+        '<!(node -e "require(\'nan\')")',
+        "src"
       ],
       "libraries": [
         "-lclang",
@@ -52,7 +53,8 @@
         "-L/usr/lib/llvm-3.4/lib",
         "-L/usr/lib/llvm-3.6/lib",
         "-L/usr/lib/llvm-3.7/lib",
-        "-L/opt/local/libexec/llvm-3.7/lib"
+        "-L/opt/local/libexec/llvm-3.7/lib",
+        "-L/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib"
       ],
       'xcode_settings': {
         'OTHER_CFLAGS': [
