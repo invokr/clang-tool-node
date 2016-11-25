@@ -27,6 +27,7 @@ Contributers
 ------------
 
 [Code Hz](https://github.com/codehz) 
+[Petr Kobalicek](https://github.com/kobalicek)
 
 API
 ---
